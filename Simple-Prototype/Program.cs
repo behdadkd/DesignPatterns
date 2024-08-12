@@ -32,6 +32,7 @@ public interface IShape
 
 public class Circle : IShape
 {
+    private int MyProperty { get; set; }
     public Coordinate Coordinate { get; set; } = default!;
     public int Radius { get; set; } = default;
 

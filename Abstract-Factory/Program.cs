@@ -15,6 +15,12 @@ Console.WriteLine(darkButton.RenderButton());
 Console.WriteLine(darkTextBox.RenderTextBox());
 Console.WriteLine(darkTextBox.ChangeTextBox(lightButton));
 
+
+
+
+
+
+
 public interface IUIFactory
 {
     IButton CreateButton();

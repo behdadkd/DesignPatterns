@@ -38,7 +38,6 @@ public class ShortMessage : Message
 
     public override void Send(string content)
     {
-
         messageSender.SendMessage(content.Trim().Replace(" ", ""));
     }
 }

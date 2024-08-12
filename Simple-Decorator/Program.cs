@@ -21,23 +21,21 @@ public class SimpleCoffee : ICoffee
     public double GetCost() => 2.00;
 }
 
-public interface ICoffeeDecorator : ICoffee
+public abstract class CoffeeDecorator : ICoffee
 {
     protected ICoffee _decoratedCoffee { get; set; }
-    public string GetDescription();
-    public double GetCost();
+    public string GetDescription() => throw new NotImplementedException();
+    public double GetCost() => throw new NotImplementedException();
 }
 
-public class MilkDecorator : ICoffeeDecorator
+public class MilkDecorator : CoffeeDecorator
 {
-    public ICoffee _decoratedCoffee { get; set; }
     public MilkDecorator(ICoffee coffee) { _decoratedCoffee = coffee; }
     public string GetDescription() => _decoratedCoffee.GetDescription() + ", with milk";
-    public double GetCost() => _decoratedCoffee.GetCost() + 0.50;
+    public new double GetCost() => _decoratedCoffee.GetCost() + 0.50;
 }
-public class SugarDecorator : ICoffeeDecorator
+public class SugarDecorator : CoffeeDecorator
 {
-    public ICoffee _decoratedCoffee { get; set; }
     public SugarDecorator(ICoffee coffee) { _decoratedCoffee = coffee; }
     public string GetDescription() => _decoratedCoffee.GetDescription() + ", with sugar";
     public double GetCost() => _decoratedCoffee.GetCost() + 0.20;

@@ -14,9 +14,15 @@ public class ClubDiscountProcessor
 {
     public void Calculate(decimal discountInPercent)
     {
-        Console.WriteLine($"Processing discount of {discountInPercent}% through Club.");
+        Console.WriteLine(value: $"Processing discount of {discountInPercent}% through Club.");
     }
 }
+
+
+
+
+
+
 
 public class DiscountAdapter : IDiscountProcessor
 {

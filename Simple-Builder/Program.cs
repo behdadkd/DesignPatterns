@@ -55,6 +55,16 @@ public class HouseBuilder : IHouseBuilder
     public void BuildGarden() => _house.HasGarden = true;
 
     public House GetResult() => _house;
+
+    //public void ConstructLuxuryHouse()
+    //{
+    //    BuildWindows(10);
+    //    BuildDoors(5);
+    //    BuildGarage();
+    //    BuildSwimmingPool();
+    //    BuildStatues();
+    //    BuildGarden();
+    //}
 }
 
 public class HouseDirector
