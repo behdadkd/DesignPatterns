@@ -196,7 +196,7 @@ public class Program
 //        // ایجاد و ثبت بخش‌های مختلف
 //        Stock stock = new Stock(orderManager);
 //        Payment payment = new Payment(orderManager);
-//        Shipping shipping = new Shipping(orderManager);
+//        Shipping shipping = new Shipping(orderManager); 
 
 //        orderManager.RegisterStock(stock);
 //        orderManager.RegisterPayment(payment);
