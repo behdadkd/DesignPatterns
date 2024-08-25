@@ -13,18 +13,15 @@ public interface IReport
 }
 public class RealReport : IReport
 {
-    private string _reportContent;
 
     public RealReport(string content)
     {
-        // Simulate expensive report generation
         Console.WriteLine("Generating report...");
-        _reportContent = content;
     }
 
     public void GenerateReport()
     {
-        Console.WriteLine($"Report Content: {_reportContent}");
+        Console.WriteLine($"Report Created");
     }
 }
 
@@ -40,10 +37,18 @@ public class ProxyReport : IReport
 
     public void GenerateReport()
     {
-        if (_realReport == null)
+        if (CheckAccess())
         {
-            _realReport = new RealReport(_reportContent);
+            _realReport.GenerateReport();
         }
-        _realReport.GenerateReport();
+        LogAccess();
+
+        bool CheckAccess()
+        {
+            Console.WriteLine("Proxy: Checking access prior to firing a real request.");
+            return true;
+        }
+
+        void LogAccess() => Console.WriteLine("Proxy: Logging the time of request.");
     }
 }
