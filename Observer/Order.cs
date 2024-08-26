@@ -1,108 +1,69 @@
 ﻿
-namespace Observer
+
+// Subject
+public class Store
 {
-    using System;
-    using System.Collections.Generic;
+    private List<IObserver> observers = new List<IObserver>();
 
-    // رابط Observer
-    public interface IObserver
+    public void AddObserver(IObserver observer)
     {
-        void Update(string productName, int quantity);
+        observers.Add(observer);
     }
 
-    // رابط Subject
-    public interface ISubject
+    public void RemoveObserver(IObserver observer)
     {
-        void RegisterObserver(IObserver observer);
-        void RemoveObserver(IObserver observer);
-        void NotifyObservers();
+        observers.Remove(observer);
     }
 
-    public class Product : ISubject
+    public void NotifyObservers()
     {
-        private List<IObserver> _observers = new List<IObserver>();
-        private string _name;
-        private int _stock;
-
-        public Product(string name, int stock)
+        foreach (var observer in observers)
         {
-            _name = name;
-            _stock = stock;
-        }
-
-        public void RegisterObserver(IObserver observer)
-        {
-            _observers.Add(observer);
-        }
-
-        public void RemoveObserver(IObserver observer)
-        {
-            _observers.Remove(observer);
-        }
-
-        public void NotifyObservers()
-        {
-            foreach (var observer in _observers)
-            {
-                observer.Update(_name, _stock);
-            }
-        }
-
-        public void PlaceOrder(int quantity)
-        {
-            if (quantity > _stock)
-            {
-                Console.WriteLine($"Not enough stock for {quantity} of {_name}. Available stock: {_stock}.");
-            }
-            else
-            {
-                _stock -= quantity;
-                Console.WriteLine($"Order placed for {quantity} of {_name}. Remaining stock: {_stock}.");
-                NotifyObservers();
-            }
-        }
-    }
-    public class Customer : IObserver
-    {
-        private string _name;
-
-        public Customer(string name)
-        {
-            _name = name;
-        }
-
-        public void Update(string productName, int quantity)
-        {
-            Console.WriteLine($"{_name} has been notified: {productName} stock has been updated. Current stock: {quantity}.");
+            observer.Update();
         }
     }
 
-    class Program
+    public void NewProductArrived()
     {
-        static void Main(string[] args)
-        {
-            // ایجاد محصولات
-            var product1 = new Product("Laptop", 50);
-            var product2 = new Product("Smartphone", 30);
+        // Logic for new product arrival
+        NotifyObservers();
+    }
+}
 
-            // ایجاد مشتریان
-            var customer1 = new Customer("Alice");
-            var customer2 = new Customer("Bob");
+// Observer Interface
+public interface IObserver
+{
+    void Update();
+}
 
-            // ثبت‌نام مشتریان به محصولات
-            product1.RegisterObserver(customer1);
-            product1.RegisterObserver(customer2);
+// Concrete Observer
+public class Customer : IObserver
+{
+    private string name;
 
-            product2.RegisterObserver(customer1);
-
-            // ثبت سفارش و اطلاع‌رسانی به مشتریان
-            product1.PlaceOrder(10); // این تغییر باعث اطلاع‌رسانی به مشتریان می‌شود.
-            product1.PlaceOrder(45); // این تغییر هم باعث اطلاع‌رسانی می‌شود.
-            product2.PlaceOrder(5);  // این تغییر باعث اطلاع‌رسانی به Alice می‌شود.
-
-            Console.ReadLine();
-        }
+    public Customer(string name)
+    {
+        this.name = name;
     }
 
+    public void Update()
+    {
+        Console.WriteLine($"Hey {name}, a new product has arrived!");
+    }
+}
 
+// Usage
+public class Program
+{
+    public static void Main()
+    {
+        Store store = new Store();
+        Customer customer1 = new Customer("Alice");
+        Customer customer2 = new Customer("Bob");
+
+        store.AddObserver(customer1);
+        store.AddObserver(customer2);
+
+        store.NewProductArrived();
+    }
 }
