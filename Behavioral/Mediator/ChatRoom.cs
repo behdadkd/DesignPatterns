@@ -40,7 +40,7 @@ public abstract class User
     {
         Name = name;
         _chatRoom = chatRoom;
-    }
+    } 
 
     public abstract void Send(string message);
     public abstract void Receive(string message, string senderName);
