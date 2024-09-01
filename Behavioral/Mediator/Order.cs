@@ -1,170 +1,124 @@
 ﻿namespace order;
-// Mediator Interface
+
+// Interface for Mediator
 public interface IOrderMediator
 {
-    void OnUserValidated(string userId);
-    void OnUserInvalid(string userId);
-    void OnStockChecked(string itemId, bool inStock);
-    void OnDiscountApplied(string userId, decimal discountAmount);
-    void OnOrderPlaced(string userId, string itemId, decimal finalPrice);
+    void SubmitOrder(string userId, string itemId, string discountCode);
 }
 
-
-
-// Concrete Mediator
 public class OrderMediator : IOrderMediator
 {
-    private UserService _userService;
-    private DiscountService _discountService;
-    private StockService _stockService;
-    private OrderService _orderService;
+    private readonly IUserService _userService;
+    private readonly IInventoryService _inventoryService;
+    private readonly IDiscountService _discountService;
+    private readonly IOrderService _orderService;
 
-    public void RegisterUserService(UserService userService)
+    public OrderMediator(IUserService userService, IInventoryService inventoryService, IDiscountService discountService, IOrderService orderService)
     {
         _userService = userService;
-    }
-
-    public void RegisterDiscountService(DiscountService discountService)
-    {
+        _inventoryService = inventoryService;
         _discountService = discountService;
-    }
-
-    public void RegisterStockService(StockService stockService)
-    {
-        _stockService = stockService;
-    }
-
-    public void RegisterOrderService(OrderService orderService)
-    {
         _orderService = orderService;
     }
 
-    public void OnUserValidated(string userId)
+    public void SubmitOrder(string userId, string itemId, string discountCode)
     {
-        Console.WriteLine($"Mediator: User {userId} validated.");
-        // ادامه فرآیند پس از اعتبارسنجی کاربر
-    }
-
-    public void OnUserInvalid(string userId)
-    {
-        Console.WriteLine($"Mediator: User {userId} is not valid. Aborting process.");
-        // متوقف کردن عملیات در صورت نامعتبر بودن کاربر
-    }
-
-    public void OnStockChecked(string itemId, bool inStock)
-    {
-        if (inStock)
+        // Step 1: Validate User
+        if (!_userService.IsUserValid(userId))
         {
-            Console.WriteLine($"Mediator: Item {itemId} is in stock.");
-            // درخواست اعمال تخفیف
-            _discountService.ApplyDiscount("User1");
+            Console.WriteLine("User validation failed. Aborting order.");
+            return;
         }
-        else
+
+        // Step 2: Check Inventory
+        if (!_inventoryService.IsInStock(itemId))
         {
-            Console.WriteLine($"Mediator: Item {itemId} is out of stock.");
+            Console.WriteLine("Item is out of stock. Aborting order.");
+            return;
         }
-    }
 
-    public void OnDiscountApplied(string userId, decimal discountAmount)
-    {
-        Console.WriteLine($"Mediator: Discount of {discountAmount:C} applied.");
-        // پردازش نهایی سفارش
-        _orderService.PlaceOrder(userId, "Item1", discountAmount);
-    }
+        // Step 3: Apply Discount
+        decimal discount = _discountService.GetDiscount(discountCode);
+        decimal itemPrice = _inventoryService.GetItemPrice(itemId);
+        decimal finalPrice = itemPrice - discount;
 
-    public void OnOrderPlaced(string userId, string itemId, decimal finalPrice)
-    {
-        Console.WriteLine($"Mediator: Order placed for User {userId} for Item {itemId} at price {finalPrice:C}.");
-    }
-}
+        // Step 4: Place Order
+        _orderService.PlaceOrder(userId, itemId, finalPrice);
 
-public class UserService
-{
-    private IOrderMediator _mediator;
-
-    public UserService(IOrderMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
-    public void ValidateUser(string userId)
-    {
-        bool isValid = IsUserValid(userId);
-
-        if (isValid)
-        {
-            Console.WriteLine($"User {userId} is valid.");
-            _mediator.OnUserValidated(userId);
-        }
-        else
-        {
-            Console.WriteLine($"User {userId} is not valid.");
-            _mediator.OnUserInvalid(userId);
-        }
-    }
-
-    private bool IsUserValid(string userId)
-    {
-        // منطق واقعی اعتبارسنجی کاربر
-        return true; // فرض بر اینکه کاربر معتبر است
+        Console.WriteLine("Order process completed successfully.");
     }
 }
 
 
-public class DiscountService
+// Interface for Services
+public interface IUserService
 {
-    private IOrderMediator _mediator;
+    bool IsUserValid(string userId);
+}
 
-    public DiscountService(IOrderMediator mediator)
-    {
-        _mediator = mediator;
-    }
+public interface IInventoryService
+{
+    bool IsInStock(string itemId);
+    decimal GetItemPrice(string itemId);
+}
 
-    public void ApplyDiscount(string userId)
+public interface IDiscountService
+{
+    decimal GetDiscount(string discountCode);
+}
+
+public interface IOrderService
+{
+    void PlaceOrder(string userId, string itemId, decimal finalPrice);
+}
+
+// Concrete implementation of UserService
+public class UserService : IUserService
+{
+    public bool IsUserValid(string userId)
     {
-        // فرض بر اینکه تخفیف ثابت است
-        decimal discountAmount = 10.0m;
-        Console.WriteLine($"Applying discount of {discountAmount:C} for User {userId}.");
-        _mediator.OnDiscountApplied(userId, discountAmount);
+        // Validate the user logic here
+        Console.WriteLine($"Validating user {userId}.");
+        return true; // Simulating that the user is valid
     }
 }
 
-public class StockService
+// Concrete implementation of InventoryService
+public class InventoryService : IInventoryService
 {
-    private IOrderMediator _mediator;
-
-    public StockService(IOrderMediator mediator)
+    public bool IsInStock(string itemId)
     {
-        _mediator = mediator;
+        // Check inventory logic here
+        Console.WriteLine($"Checking stock for item {itemId}.");
+        return true; // Simulating that the item is in stock
     }
 
-    public void CheckStock(string itemId)
+    public decimal GetItemPrice(string itemId)
     {
-        bool inStock = IsItemInStock(itemId);
-        _mediator.OnStockChecked(itemId, inStock);
-    }
-
-    private bool IsItemInStock(string itemId)
-    {
-        // منطق واقعی بررسی موجودی
-        return true; // فرض بر اینکه کالا موجود است
+        // Logic to get item price
+        Console.WriteLine($"Getting price for item {itemId}.");
+        return 100m; // Simulating item price
     }
 }
 
-public class OrderService
+// Concrete implementation of DiscountService
+public class DiscountService : IDiscountService
 {
-    private IOrderMediator _mediator;
-
-    public OrderService(IOrderMediator mediator)
+    public decimal GetDiscount(string discountCode)
     {
-        _mediator = mediator;
+        // Apply discount logic here
+        Console.WriteLine($"Applying discount with code {discountCode}.");
+        return 10m; // Simulating a discount of 10 units
     }
+}
 
+// Concrete implementation of OrderService
+public class OrderService : IOrderService
+{
     public void PlaceOrder(string userId, string itemId, decimal finalPrice)
     {
-        // منطق واقعی ثبت سفارش
-        Console.WriteLine($"Placing order for User {userId} with Item {itemId} at final price {finalPrice:C}.");
-        _mediator.OnOrderPlaced(userId, itemId, finalPrice);
+        // Place order logic here
+        Console.WriteLine($"Placing order for user {userId} for item {itemId} at price {finalPrice:C}.");
     }
 }
 
@@ -172,23 +126,17 @@ class Program
 {
     static void Main(string[] args)
     {
-        // ایجاد واسطه (Mediator)
-        IOrderMediator orderMediator = new OrderMediator();
+        // ایجاد سرویس‌ها
+        IUserService userService = new UserService();
+        IInventoryService inventoryService = new InventoryService();
+        IDiscountService discountService = new DiscountService();
+        IOrderService orderService = new OrderService();
 
-        // ایجاد و ثبت سرویس‌ها در واسطه
-        UserService userService = new UserService(orderMediator);
-        DiscountService discountService = new DiscountService(orderMediator);
-        StockService stockService = new StockService(orderMediator);
-        OrderService orderService = new OrderService(orderMediator);
+        // ایجاد مدیاتور
+        IOrderMediator orderMediator = new OrderMediator(userService, inventoryService, discountService, orderService);
 
-        ((OrderMediator)orderMediator).RegisterUserService(userService);
-        ((OrderMediator)orderMediator).RegisterDiscountService(discountService);
-        ((OrderMediator)orderMediator).RegisterStockService(stockService);
-        ((OrderMediator)orderMediator).RegisterOrderService(orderService);
-
-        // شروع فرآیند سفارش
-        userService.ValidateUser("User1");
-        stockService.CheckStock("Item1");
+        // ارسال سفارش از طریق مدیاتور
+        orderMediator.SubmitOrder("User1", "Item1", "DISCOUNT2024");
 
         Console.ReadLine();
     }

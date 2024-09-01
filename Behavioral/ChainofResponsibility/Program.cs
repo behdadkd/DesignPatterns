@@ -99,14 +99,15 @@ public class CardValidationHandler : BaseHandler
     {
         if (request.IsCardBlocked)
         {
-            Console.WriteLine("کارت مسدود است. پردازش متوقف شد.");
-            request.IsProcessingStopped = true;
+            Console.WriteLine("کارت مسدود است، اما پردازش ادامه می‌یابد.");
         }
         else
         {
             Console.WriteLine("کارت معتبر است.");
-            base.Handle(request);
         }
+
+        // ادامه زنجیره
+        base.Handle(request);
     }
 }
 public class AmountValidationHandler : BaseHandler
