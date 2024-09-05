@@ -57,20 +57,48 @@
     {
         static void Main(string[] args)
         {
-            // پردازش سفارش با استراتژی ارسال استاندارد
-            var standardShipping = new StandardShippingStrategy();
-            var orderProcessorStandard = new OrderProcessor(standardShipping);
-            orderProcessorStandard.ProcessOrder(1000m);
+            // ایجاد متغیر از نوع IShippingStrategy
+            IShippingStrategy shippingStrategy;
 
-            // پردازش سفارش با استراتژی ارسال اکسپرس
-            var expressShipping = new ExpressShippingStrategy();
-            var orderProcessorExpress = new OrderProcessor(expressShipping);
-            orderProcessorExpress.ProcessOrder(1000m);
+            // ایجاد پردازشگر سفارش
+            OrderProcessor orderProcessor;
 
-            // پردازش سفارش با استراتژی ارسال شبانه
-            var overnightShipping = new OvernightShippingStrategy();
-            var orderProcessorOvernight = new OrderProcessor(overnightShipping);
-            orderProcessorOvernight.ProcessOrder(1000m);
+            // 1. استفاده از استراتژی ارسال استاندارد
+            shippingStrategy = new StandardShippingStrategy();
+            orderProcessor = new OrderProcessor(shippingStrategy);
+            orderProcessor.ProcessOrder(1000m);
+
+            // 2. تغییر استراتژی به ارسال اکسپرس
+            shippingStrategy = new ExpressShippingStrategy();
+            orderProcessor = new OrderProcessor(shippingStrategy);
+            orderProcessor.ProcessOrder(1000m);
+
+            // 3. تغییر استراتژی به ارسال شبانه
+            shippingStrategy = new OvernightShippingStrategy();
+            orderProcessor = new OrderProcessor(shippingStrategy);
+            orderProcessor.ProcessOrder(1000m);
+
+            Console.ReadLine();
+
+
+
+
+
+
+            //// پردازش سفارش با استراتژی ارسال استاندارد
+            //var standardShipping = new StandardShippingStrategy();
+            //var orderProcessorStandard = new OrderProcessor(standardShipping);
+            //orderProcessorStandard.ProcessOrder(1000m);
+
+            //// پردازش سفارش با استراتژی ارسال اکسپرس
+            //var expressShipping = new ExpressShippingStrategy();
+            //var orderProcessorExpress = new OrderProcessor(expressShipping);
+            //orderProcessorExpress.ProcessOrder(1000m);
+
+            //// پردازش سفارش با استراتژی ارسال شبانه
+            //var overnightShipping = new OvernightShippingStrategy();
+            //var orderProcessorOvernight = new OrderProcessor(overnightShipping);
+            //orderProcessorOvernight.ProcessOrder(1000m);
 
             Console.ReadLine();
         }

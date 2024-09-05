@@ -1,60 +1,80 @@
-﻿using System;
+﻿namespace order;
+// Interface for Services
+public interface IUserService
+{
+    bool IsUserValid(string userId);
+}
 
-// Services
-public class UserService
+public interface IInventoryService
+{
+    bool IsInStock(string itemId);
+    decimal GetItemPrice(string itemId);
+}
+
+public interface IDiscountService
+{
+    decimal GetDiscount(string discountCode);
+}
+
+public interface IOrderService
+{
+    void PlaceOrder(string userId, string itemId, decimal finalPrice);
+}
+
+// Concrete implementation of UserService
+public class UserService : IUserService
 {
     public bool IsUserValid(string userId)
     {
-        // منطق اعتبارسنجی کاربر
-        Console.WriteLine($"Validating user: {userId}");
+        Console.WriteLine($"Validating user {userId}.");
         return true;
     }
 }
 
-public class InventoryService
+// Concrete implementation of InventoryService
+public class InventoryService : IInventoryService
 {
     public bool IsInStock(string itemId)
     {
-        // منطق بررسی موجودی
-        Console.WriteLine($"Checking stock for item: {itemId}");
+        Console.WriteLine($"Checking stock for item {itemId}.");
         return true;
     }
 
     public decimal GetItemPrice(string itemId)
     {
-        // منطق برای دریافت قیمت کالا
+        Console.WriteLine($"Getting price for item {itemId}.");
         return 100m;
     }
 }
 
-public class DiscountService
+// Concrete implementation of DiscountService
+public class DiscountService : IDiscountService
 {
-    public decimal GetDiscount(string userId, string itemId)
+    public decimal GetDiscount(string discountCode)
     {
-        // منطق اعمال تخفیف
-        Console.WriteLine($"Applying discount for user: {userId} on item: {itemId}");
+        Console.WriteLine($"Applying discount with code {discountCode}.");
         return 10m;
     }
 }
 
-public class OrderService
+// Concrete implementation of OrderService
+public class OrderService : IOrderService
 {
-    public void ProcessOrder(string userId, string itemId, decimal finalPrice)
+    public void PlaceOrder(string userId, string itemId, decimal finalPrice)
     {
-        // منطق ثبت سفارش
-        Console.WriteLine($"Processing order for user {userId} with item {itemId} at final price {finalPrice:C}.");
+        Console.WriteLine($"Placing order for user {userId} for item {itemId} at price {finalPrice:C}.");
     }
 }
 
-// Main Order Processor Class
+// Class that handles order processing without Mediator
 public class OrderProcessor
 {
-    private UserService _userService;
-    private InventoryService _inventoryService;
-    private DiscountService _discountService;
-    private OrderService _orderService;
+    private readonly IUserService _userService;
+    private readonly IInventoryService _inventoryService;
+    private readonly IDiscountService _discountService;
+    private readonly IOrderService _orderService;
 
-    public OrderProcessor(UserService userService, InventoryService inventoryService, DiscountService discountService, OrderService orderService)
+    public OrderProcessor(IUserService userService, IInventoryService inventoryService, IDiscountService discountService, IOrderService orderService)
     {
         _userService = userService;
         _inventoryService = inventoryService;
@@ -62,30 +82,31 @@ public class OrderProcessor
         _orderService = orderService;
     }
 
-    public void PlaceOrder(string userId, string itemId)
+    public void ProcessOrder(string userId, string itemId, string discountCode)
     {
-        // 1. Validate user
+        // Step 1: Validate User
         if (!_userService.IsUserValid(userId))
         {
-            Console.WriteLine($"User {userId} is not valid. Aborting order.");
+            Console.WriteLine("User validation failed. Aborting order.");
             return;
         }
 
-        // 2. Check inventory
+        // Step 2: Check Inventory
         if (!_inventoryService.IsInStock(itemId))
         {
-            Console.WriteLine($"Item {itemId} is out of stock. Aborting order.");
+            Console.WriteLine("Item is out of stock. Aborting order.");
             return;
         }
 
-        // 3. Apply discount
-        decimal discount = _discountService.GetDiscount(userId, itemId);
-        decimal finalPrice = _inventoryService.GetItemPrice(itemId) - discount;
-        Console.WriteLine($"Discount applied. Final price is {finalPrice:C}.");
+        // Step 3: Apply Discount
+        decimal discount = _discountService.GetDiscount(discountCode);
+        decimal itemPrice = _inventoryService.GetItemPrice(itemId);
+        decimal finalPrice = itemPrice - discount;
 
-        // 4. Place order
-        _orderService.ProcessOrder(userId, itemId, finalPrice);
-        Console.WriteLine($"Order placed successfully for user {userId}.");
+        // Step 4: Place Order
+        _orderService.PlaceOrder(userId, itemId, finalPrice);
+
+        Console.WriteLine("Order process completed successfully.");
     }
 }
 
@@ -95,16 +116,16 @@ class Program
     static void Main(string[] args)
     {
         // ایجاد سرویس‌ها
-        UserService userService = new UserService();
-        InventoryService inventoryService = new InventoryService();
-        DiscountService discountService = new DiscountService();
-        OrderService orderService = new OrderService();
+        IUserService userService = new UserService();
+        IInventoryService inventoryService = new InventoryService();
+        IDiscountService discountService = new DiscountService();
+        IOrderService orderService = new OrderService();
 
         // ایجاد پروسسور سفارش
         OrderProcessor orderProcessor = new OrderProcessor(userService, inventoryService, discountService, orderService);
 
-        // ثبت سفارش
-        orderProcessor.PlaceOrder("User1", "Item1");
+        // ارسال سفارش
+        orderProcessor.ProcessOrder("User1", "Item1", "DISCOUNT2024");
 
         Console.ReadLine();
     }

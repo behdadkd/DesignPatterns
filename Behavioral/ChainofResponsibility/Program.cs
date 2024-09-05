@@ -1,4 +1,23 @@
-﻿//var vipHandler = new VIPDiscountHandler();
+﻿
+public class PaymentRequest
+{
+    public string CardNumber { get; set; }
+    public string MobileNumber { get; set; }
+    public string RegisteredMobileNumber { get; set; }
+    public decimal Amount { get; set; }
+    public string DestinationCardNumber { get; set; }
+    public bool IsCardBlocked { get; set; }
+    public decimal DailyTransactionAmount { get; set; }
+    public bool IsCardAndMobileMatched { get; set; }
+    public string OriginCountry { get; set; }
+    public string DestinationCountry { get; set; }
+    public bool IsProcessingStopped { get; set; } = false; // برای کنترل توقف پردازش
+}
+
+
+
+
+//var vipHandler = new VIPDiscountHandler();
 //vipHandler.SetNextHandler(new RegularDiscountHandler())
 //          .SetNextHandler(new NewDiscountHandler())
 //          .SetNextHandler(new NoDiscountHandler());
@@ -17,6 +36,8 @@
 //    public bool IsRegular { get; set; }
 //    public bool IsNew { get; set; }
 //}
+
+
 //public abstract class DiscountHandler
 //{
 //    protected DiscountHandler _nextHandler;
@@ -91,8 +112,143 @@
 
 
 
-//شرط ورود 
+//توقف زنجیر 
 
+//public interface IHandler
+//{
+//    IHandler SetNext(IHandler handler);
+//    void Handle(PaymentRequest request);
+//}
+//public abstract class BaseHandler : IHandler
+//{
+//    private IHandler _nextHandler;
+
+//    public IHandler SetNext(IHandler handler)
+//    {
+//        _nextHandler = handler;
+//        return handler;
+//    }
+
+//    public virtual void Handle(PaymentRequest request)
+//    {
+//        if (request.IsProcessingStopped)
+//        {
+//            return; // پردازش متوقف شده است، هیچ هندلری پردازش را ادامه نمی‌دهد
+//        }
+
+//        if (_nextHandler != null)
+//        {
+//            _nextHandler.Handle(request);
+//        }
+//    }
+//}
+//public class CardValidationHandler : BaseHandler
+//{
+//    public override void Handle(PaymentRequest request)
+//    {
+//        if (request.IsCardBlocked)
+//        {
+//            Console.WriteLine("کارت مسدود است.");
+//            request.IsProcessingStopped = true; // توقف پردازش
+//            return;
+//        }
+
+//        if (request.DailyTransactionAmount > 10000000)
+//        {
+//            Console.WriteLine("محدودیت روزانه تراکنش بیشتر از 10 میلیون است.");
+//            request.IsProcessingStopped = true; // توقف پردازش
+//            return;
+//        }
+
+//        base.Handle(request);
+//    }
+//}
+
+//public class AmountValidationHandler : BaseHandler
+//{
+//    public override void Handle(PaymentRequest request)
+//    {
+//        if (request.Amount > 200000000)
+//        {
+//            // چک کردن مطابقت شماره کارت و موبایل
+//            if (!request.IsCardAndMobileMatched)
+//            {
+//                Console.WriteLine("شماره کارت و شماره موبایل مطابقت ندارند.");
+//                request.IsProcessingStopped = true; // توقف پردازش
+//                return;
+//            }
+//        }
+
+//        base.Handle(request);
+//    }
+//}
+
+//public class DestinationCardValidationHandler : BaseHandler
+//{
+//    public override void Handle(PaymentRequest request)
+//    {
+//        if (string.IsNullOrEmpty(request.DestinationCardNumber))
+//        {
+//            Console.WriteLine("شماره کارت مقصد نامعتبر است.");
+//            request.IsProcessingStopped = true; // توقف پردازش
+//            return;
+//        }
+
+//        base.Handle(request);
+//    }
+//}
+//public class TransactionHandler : BaseHandler
+//{
+//    public override void Handle(PaymentRequest request)
+//    {
+//        if (request.IsProcessingStopped)
+//        {
+//            // پردازش متوقف شده است، بنابراین هیچ تراکنشی انجام نمی‌شود
+//            Console.WriteLine("پردازش تراکنش متوقف شده است.");
+//            return;
+//        }
+
+//        Console.WriteLine("تراکنش با موفقیت انجام شد.");
+//    }
+//}
+
+//public class Program
+//{
+//    public static void Main(string[] args)
+//    {
+//        // ایجاد هندلرها
+//        var cardValidation = new CardValidationHandler();
+//        var amountValidation = new AmountValidationHandler();
+//        var destinationCardValidation = new DestinationCardValidationHandler();
+//        var transaction = new TransactionHandler();
+
+//        // تنظیم زنجیره هندلرها
+//        cardValidation.SetNext(amountValidation)
+//                      .SetNext(destinationCardValidation)
+//                      .SetNext(transaction);
+
+//        // نمونه‌ای از درخواست پرداخت
+//        var request = new PaymentRequest
+//        {
+//            CardNumber = "1234-5678-9876-5432",
+//            MobileNumber = "09121234567",
+//            RegisteredMobileNumber = "09121234567",
+//            Amount = 250000000, // مبلغ بیشتر از 200 میلیون
+//            DestinationCardNumber = "4321-8765-6789-1234",
+//            IsCardBlocked = false,
+//            DailyTransactionAmount = 5000000,
+//            IsCardAndMobileMatched = false // شماره کارت و موبایل مطابقت ندارد
+//        };
+
+//        // اجرای زنجیره
+//        cardValidation.Handle(request);
+//    }
+//}
+
+
+
+
+//شرط ورود 
 public class CardValidationHandler : BaseHandler
 {
     public override void Handle(PaymentRequest request)
@@ -115,26 +271,27 @@ public class AmountValidationHandler : BaseHandler
     public override void Handle(PaymentRequest request)
     {
         // شرط ورود: فقط اگر مبلغ تراکنش بیشتر از 200 میلیون باشد
-        if (request.Amount > 200000000)
+        if (request.Amount <= 200000000)
         {
-            // چک کردن مطابقت شماره کارت و موبایل
-            if (request.IsCardAndMobileMatched)
-            {
-                Console.WriteLine("شماره کارت و شماره موبایل مطابقت دارند، ادامه پردازش.");
-            }
-            else
-            {
-                Console.WriteLine("شماره کارت و شماره موبایل مطابقت ندارند.");
-                request.IsProcessingStopped = true; // توقف پردازش
-                return;
-            }
+            // اگر شرط ورود برقرار نباشد، به هندلر بعدی می‌رود
+            base.Handle(request);
+            return;
         }
 
-        // اگر شرط ورود برقرار نباشد، به هندلر بعدی می‌رود
+        // اگر شرط ورود برقرار باشد
+        if (request.IsCardAndMobileMatched)
+        {
+            Console.WriteLine("شماره کارت و شماره موبایل مطابقت دارند، ادامه پردازش.");
+        }
+        else
+        {
+            Console.WriteLine("شماره کارت و شماره موبایل مطابقت ندارند.");
+        }
+
+        // ادامه زنجیره
         base.Handle(request);
     }
 }
-
 
 public class DestinationCardValidationHandler : BaseHandler
 {
@@ -143,8 +300,6 @@ public class DestinationCardValidationHandler : BaseHandler
         if (string.IsNullOrEmpty(request.DestinationCardNumber))
         {
             Console.WriteLine("شماره کارت مقصد نامعتبر است.");
-            request.IsProcessingStopped = true; // توقف پردازش
-            return;
         }
 
         base.Handle(request);
@@ -194,6 +349,11 @@ public class Program
         cardValidation.Handle(request);
     }
 }
+
+
+
+
+
 
 
 
@@ -347,154 +507,8 @@ public class InternationalTransactionHandler : BaseHandler
 //}
 
 
-public class PaymentRequest
-{
-    public string CardNumber { get; set; }
-    public string MobileNumber { get; set; }
-    public string RegisteredMobileNumber { get; set; }
-    public decimal Amount { get; set; }
-    public string DestinationCardNumber { get; set; }
-    public bool IsCardBlocked { get; set; }
-    public decimal DailyTransactionAmount { get; set; }
-    public bool IsCardAndMobileMatched { get; set; }
-    public string OriginCountry { get; set; }
-    public string DestinationCountry { get; set; }
-    public bool IsProcessingStopped { get; set; } = false; // برای کنترل توقف پردازش
-}
 
 
 
 
-//توقف زنجیر 
-
-//public interface IHandler
-//{
-//    IHandler SetNext(IHandler handler);
-//    void Handle(PaymentRequest request);
-//}
-//public abstract class BaseHandler : IHandler
-//{
-//    private IHandler _nextHandler;
-
-//    public IHandler SetNext(IHandler handler)
-//    {
-//        _nextHandler = handler;
-//        return handler;
-//    }
-
-//    public virtual void Handle(PaymentRequest request)
-//    {
-//        if (request.IsProcessingStopped)
-//        {
-//            return; // پردازش متوقف شده است، هیچ هندلری پردازش را ادامه نمی‌دهد
-//        }
-
-//        if (_nextHandler != null)
-//        {
-//            _nextHandler.Handle(request);
-//        }
-//    }
-//}
-//public class CardValidationHandler : BaseHandler
-//{
-//    public override void Handle(PaymentRequest request)
-//    {
-//        if (request.IsCardBlocked)
-//        {
-//            Console.WriteLine("کارت مسدود است.");
-//            request.IsProcessingStopped = true; // توقف پردازش
-//            return;
-//        }
-
-//        if (request.DailyTransactionAmount > 10000000)
-//        {
-//            Console.WriteLine("محدودیت روزانه تراکنش بیشتر از 10 میلیون است.");
-//            request.IsProcessingStopped = true; // توقف پردازش
-//            return;
-//        }
-
-//        base.Handle(request);
-//    }
-//}
-
-//public class AmountValidationHandler : BaseHandler
-//{
-//    public override void Handle(PaymentRequest request)
-//    {
-//        if (request.Amount > 200000000)
-//        {
-//            // چک کردن مطابقت شماره کارت و موبایل
-//            if (!request.IsCardAndMobileMatched)
-//            {
-//                Console.WriteLine("شماره کارت و شماره موبایل مطابقت ندارند.");
-//                request.IsProcessingStopped = true; // توقف پردازش
-//                return;
-//            }
-//        }
-
-//        base.Handle(request);
-//    }
-//}
-
-//public class DestinationCardValidationHandler : BaseHandler
-//{
-//    public override void Handle(PaymentRequest request)
-//    {
-//        if (string.IsNullOrEmpty(request.DestinationCardNumber))
-//        {
-//            Console.WriteLine("شماره کارت مقصد نامعتبر است.");
-//            request.IsProcessingStopped = true; // توقف پردازش
-//            return;
-//        }
-
-//        base.Handle(request);
-//    }
-//}
-//public class TransactionHandler : BaseHandler
-//{
-//    public override void Handle(PaymentRequest request)
-//    {
-//        if (request.IsProcessingStopped)
-//        {
-//            // پردازش متوقف شده است، بنابراین هیچ تراکنشی انجام نمی‌شود
-//            Console.WriteLine("پردازش تراکنش متوقف شده است.");
-//            return;
-//        }
-
-//        Console.WriteLine("تراکنش با موفقیت انجام شد.");
-//    }
-//}
-
-//public class Program
-//{
-//    public static void Main(string[] args)
-//    {
-//        // ایجاد هندلرها
-//        var cardValidation = new CardValidationHandler();
-//        var amountValidation = new AmountValidationHandler();
-//        var destinationCardValidation = new DestinationCardValidationHandler();
-//        var transaction = new TransactionHandler();
-
-//        // تنظیم زنجیره هندلرها
-//        cardValidation.SetNext(amountValidation)
-//                      .SetNext(destinationCardValidation)
-//                      .SetNext(transaction);
-
-//        // نمونه‌ای از درخواست پرداخت
-//        var request = new PaymentRequest
-//        {
-//            CardNumber = "1234-5678-9876-5432",
-//            MobileNumber = "09121234567",
-//            RegisteredMobileNumber = "09121234567",
-//            Amount = 250000000, // مبلغ بیشتر از 200 میلیون
-//            DestinationCardNumber = "4321-8765-6789-1234",
-//            IsCardBlocked = false,
-//            DailyTransactionAmount = 5000000,
-//            IsCardAndMobileMatched = false // شماره کارت و موبایل مطابقت ندارد
-//        };
-
-//        // اجرای زنجیره
-//        cardValidation.Handle(request);
-//    }
-//}
 
