@@ -134,4 +134,78 @@ class Program
     }
 }
 
+
+
+
+abstract class DataProcessor
+{
+    // متد Template که ساختار اصلی الگوریتم را تعریف می‌کند
+    public void ProcessData()
+    {
+        ReadData();       // مرحله اول: خواندن داده‌ها
+        ProcessData();    // مرحله دوم: پردازش داده‌ها
+        SaveData();       // مرحله سوم: ذخیره داده‌ها
+    }
+
+    // این مراحل را زیرکلاس‌ها پیاده‌سازی خواهند کرد
+    protected abstract void ReadData();
+    protected abstract void ProcessData();
+
+    // مرحله ذخیره‌سازی، می‌تواند در کلاس پایه پیاده‌سازی شود
+    protected virtual void SaveData()
+    {
+        Console.WriteLine("Data saved to default storage");
+    }
 }
+class FileDataProcessor : DataProcessor
+{
+    protected override void ReadData()
+    {
+        Console.WriteLine("Reading data from file...");
+    }
+
+    protected override void ProcessData()
+    {
+        Console.WriteLine("Processing file data...");
+    }
+}
+class DatabaseDataProcessor : DataProcessor
+{
+    protected override void ReadData()
+    {
+        Console.WriteLine("Reading data from database...");
+    }
+
+    protected override void ProcessData()
+    {
+        Console.WriteLine("Processing database data...");
+    }
+
+    // امکان override کردن مرحله ذخیره‌سازی به شکل متفاوت:
+    protected override void SaveData()
+    {
+        Console.WriteLine("Data saved to database");
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        // پردازش داده از فایل
+        DataProcessor fileProcessor = new FileDataProcessor();
+        fileProcessor.ProcessData();
+        // خروجی:
+        // Reading data from file...
+        // Processing file data...
+        // Data saved to default storage
+
+        // پردازش داده از دیتابیس
+        DataProcessor databaseProcessor = new DatabaseDataProcessor();
+        databaseProcessor.ProcessData();
+        // خروجی:
+        // Reading data from database...
+        // Processing database data...
+        // Data saved to database
+    }
+}
+
